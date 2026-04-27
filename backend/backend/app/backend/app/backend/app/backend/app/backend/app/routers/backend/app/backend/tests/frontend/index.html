@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Watt Logic - Curated Gadgets</title>
+    <style>
+        /* Минимальный CSS для карточек */
+        .product-grid { display: flex; flex-wrap: wrap; gap: 20px; }
+        .product-card { border: 1px solid #eee; padding: 15px; width: 200px; }
+        .error { color: red; }
+    </style>
+</head>
+<body>
+    <h1>Watt Logic</h1>
+    <div id="app">
+        <div id="loading">Загрузка...</div>
+        <div id="error" class="error" style="display: none;"></div>
+        <div id="product-list" class="product-grid"></div>
+    </div>
+
+    <script>
+        async function loadProducts() {
+            const loadingEl = document.getElementById('loading');
+            const errorEl = document.getElementById('error');
+            const listEl = document.getElementById('product-list');
+            
+            loadingEl.style.display = 'block';
+            errorEl.style.display = 'none';
+            
+            try {
+                const response = await fetch('http://localhost:8000/products/');
+                if (!response.ok) throw new Error('Ошибка загрузки');
+                
+                const result = await response.json();
+                listEl.innerHTML = result.data.map(p => 
+                    `<div class="product-card">
+                        <h3>${p.name}</h3>
+                        <p>${p.description || ''}</p>
+                        <strong>$${p.price}</strong>
+                    </div>`
+                ).join('');
+            } catch (err) {
+                errorEl.textContent = 'Ошибка загрузки каталога: ' + err.message;
+                errorEl.style.display = 'block';
+            } finally {
+                loadingEl.style.display = 'none';
+            }
+        }
+        loadProducts();
+    </script>
+</body>
+</html>
